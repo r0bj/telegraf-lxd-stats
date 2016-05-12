@@ -54,8 +54,11 @@ func genLineProtMsg(m map[string]map[string]interface{}) string {
 				lxc_data_array = append(lxc_data_array, fmt.Sprintf("%s=%f", key, value))
 			}
 		}
-		line := "lxcstats,lxc_host=" + lxc_host + " " + strings.Join(lxc_data_array, ",")
-		output_list = append(output_list, line)
+		var line string
+		if len(lxc_data_array) > 0 {
+			line = "lxcstats,lxc_host=" + lxc_host + " " + strings.Join(lxc_data_array, ",")
+			output_list = append(output_list, line)
+		}
 	}
 	return strings.Join(output_list, "\n")
 }
@@ -122,7 +125,15 @@ func getLxdInterfaceCounters(lxd string, channel chan<- HttpTaskResult) {
 	}
 
 	if containerStateResponse.Metadata == nil {
-		panic("Cannot get LXD interfaces data")
+		httpTaskResult.err = errors.New("Cannot get LXD metadata")
+		channel <- httpTaskResult
+		return
+	}
+	// LXD container stopped?
+	if containerStateResponse.Metadata["network"] == nil {
+		httpTaskResult.err = errors.New("Cannot get LXD network data")
+		channel <- httpTaskResult
+		return
 	}
 	for iface, value := range containerStateResponse.Metadata["network"].(map[string]interface{}) {
 		if value.(map[string]interface{})["host_name"].(string) == "" {
