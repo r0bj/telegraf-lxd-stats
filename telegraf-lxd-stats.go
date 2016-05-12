@@ -121,7 +121,13 @@ func getLxdInterfaceCounters(lxd string, channel chan<- HttpTaskResult) {
 		panic(fmt.Sprintf("Cannot unmarshal HTTP body: %s", err))
 	}
 
+	if containerStateResponse.Metadata == nil {
+		panic("Cannot get LXD interfaces data")
+	}
 	for iface, value := range containerStateResponse.Metadata["network"].(map[string]interface{}) {
+		if value.(map[string]interface{})["host_name"].(string) == "" {
+			continue
+		}
 		if stats[iface] == nil {
 			stats[iface] = make(map[string]uint64)
 		}
