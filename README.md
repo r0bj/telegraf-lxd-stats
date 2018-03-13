@@ -1,18 +1,23 @@
 # telegraf-lxd-stats
 LXD stats telegraf plugin
 
-1.
-Put telegraf-lxd-stats binary to e.g. /usr/local/sbin/telegraf-lxd-stats
+1. Compilation
+```go
+go get github.com/r0bj/telegraf-lxd-stats
+cd $GOPATH/src/github.com/r0bj/telegraf-lxd-stats
+go build telegraf-lxd-stats.go
+cp telegraf-lxd-stats /usr/local/sbin/
+```
 
-2.
-Add to telegraf configuration file (e.g. /etc/telegraf/telegraf.conf):
+2. Configuration
+Add to telegraf configuration file (e.g. /etc/telegraf/telegraf.d/lxdstats.conf):
 ```
 [[inputs.exec]]
   command = "sudo /usr/local/sbin/telegraf-lxd-stats"
   data_format = "influx"
 ```
-3.
-Add to /etc/sudoers file (telegraf daemon user by default):
+
+Add to /etc/sudoers.d/lxdstats file (telegraf daemon user by default):
 ```
 telegraf ALL = NOPASSWD: /usr/local/sbin/telegraf-lxd-stats
 ```
@@ -28,3 +33,5 @@ Example grafana graphs based on plugin:
 ![ScreenShot](/screenshots/ss1.png)
 ![ScreenShot](/screenshots/ss2.png)
 ![ScreenShot](/screenshots/ss3.png)
+
+An example Grafana dashboard is included with the source.
